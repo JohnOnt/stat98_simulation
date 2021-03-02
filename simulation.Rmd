@@ -1,0 +1,22 @@
+---
+title: "R Notebook"
+output:
+  pdf_document: default
+  pdf: default
+---
+
+```{r}
+lambda <- 1/900
+sims <- 800
+n <- 15
+tsamples <- replicate(sims, rexp(n, rate = lambda))
+mu = 1/lambda
+
+results <- as.numeric(sims)
+t.int <- matrix(FALSE, sims, 2)
+for (i in 1:sims) {
+    t.int[i, ] <- t.test(tsamples[, i], conf.level = 0.95)$conf.int
+    results[i] <- t.int[i, 1] < mu & t.int[i, 2] > mu
+}
+sum(results)/sims
+```
