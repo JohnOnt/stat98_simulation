@@ -65,6 +65,9 @@ boot_out <- boot(
 )
 
 boot.ci(boot_out)
+boot.ci(boot_out, type = "basic") # Bias corrected bootstrap
+boot.ci(boot_out, type = "perc") # Standard bootstrap 
+boot.ci(boot_out, type = "norm") # Parametric (standard normal)
 ```
 ```{r}
 boot.ci(boot_out)$basic[5]
