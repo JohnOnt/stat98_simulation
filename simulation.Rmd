@@ -31,12 +31,12 @@ get_estimate_NormPois <- function(data, indices) {
 
 # For Binomial Distribution
 get_estimate_Binom <- function(data, indices) {
-  return(mean(vec)/length(vec))
+  return(mean(data[indices])/length(data[indices]))
 }
 
 # For Geometric Distribution
-get_estimate_Geom <- function(vec) {
-  return(1/mean(vec))
+get_estimate_Geom <- function(data, indices) {
+  return(1/mean(data[indices]))
 }
 ```
 
@@ -45,10 +45,10 @@ get_estimate_Geom <- function(vec) {
 # FIVE Distributions
 # Normal, Poisson, Binomial, Geometric, ¯\_(ツ)_/¯ distribution
 n <- 100
-normies <- rnorm(n)
-poissis <- rpois(n, 2)
-binnies <- rbinom(n, n, 0.7)
-geomies <- rgeom(n, 0.7)
+normies <- rnorm(n) # continous and normal
+poissis <- rpois(n, 2) # Continuous not normal
+binnies <- rbinom(n, n, 0.7) # discrete normalish
+geomies <- rgeom(n, 0.7) # discrete abnormal
 ```
 
 ```{r}
