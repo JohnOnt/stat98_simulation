@@ -77,5 +77,37 @@ boot.ci(boot_out)$basic[5]
 library(kernelboot)
 
 b1 <- kernelboot(data=normies, statistic=get_estimate_NormPois)
-summary(b1)
+summary(b1)[3]
+  
 ```
+
+
+```{r}
+# Create variables
+nsims = 100
+n = c(10, 30, 100)
+mu = 0
+coverage = c()
+
+for (i in 1:nsims) {
+  
+  normies10 = rnorm(10)
+  
+  normies10boot <- boot(
+      data = normies10,
+      statistic = get_estimate_NormPois,
+      R = 100
+  )
+  
+  # boot.ci(normies10boot, type = "perc")[[4]][5]
+  
+  lower = boot.ci(normies10boot, type = "perc")[[4]][4]
+  upper = boot.ci(normies10boot, type = "perc")[[4]][5]
+  
+  coverage[i] = lower <= mu & upper >= mu
+}
+
+# part (i)
+mean(coverage)
+```
+
