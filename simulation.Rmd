@@ -88,26 +88,75 @@ nsims = 100
 n = c(10, 30, 100)
 mu = 0
 coverage = c()
+normies_coverage <- matrix(nrow = 100, ncol = 12)
 
 for (i in 1:nsims) {
-  
   normies10 = rnorm(10)
+  normies30 = rnorm(30)
+  normies100 = rnorm(100)
   
-  normies10boot <- boot(
+  normies10.boot <- boot(
       data = normies10,
       statistic = get_estimate_NormPois,
       R = 100
   )
   
-  # boot.ci(normies10boot, type = "perc")[[4]][5]
+  normies30.boot <- boot(
+      data = normies30,
+      statistic = get_estimate_NormPois,
+      R = 100
+  )
   
+  normies100.boot <- boot(
+      data = normies100,
+      statistic = get_estimate_NormPois,
+      R = 100
+  )
+  
+  # Initialize row vector
+  cov.i <- c()
+  
+  # T-test
+  cov.i <- c(cov.i, 1,1,1)
+  
+  # Booting types
+  
+  boot_types <- c("perc", "basic", "norm")
+  
+  for (j in 1:(length(boot_types))) {
+    # print(boot_types[j])
+    subt <- 0
+    if (boot_types[j] == "norm") {subt = 2}
+    lower10 = boot.ci(normies10.boot, type = boot_types[j])[[4]][4-subt]
+    upper10 = boot.ci(normies10.boot, type = boot_types[j])[[4]][5-subt]
+    
+    lower30 = boot.ci(normies30.boot, type = boot_types[j])[[4]][4-subt]
+    upper30 = boot.ci(normies30.boot, type = boot_types[j])[[4]][5-subt]
+    
+    lower100 = boot.ci(normies100.boot, type = boot_types[j])[[4]][4-subt]
+    upper100 = boot.ci(normies100.boot, type = boot_types[j])[[4]][5-subt]
+    
+    cov.i <- c(cov.i, (lower10 <= mu & upper10 >= mu),
+               (lower30 <= mu & upper30 >= mu),
+               (lower100 <= mu & upper100 >= mu))
+  }
+  
+  
+  normies_coverage[i,] <- cov.i
+  # Boot percentile
   lower = boot.ci(normies10boot, type = "perc")[[4]][4]
   upper = boot.ci(normies10boot, type = "perc")[[4]][5]
   
+  # boot.ci(normies10boot, type = "perc")[[4]][5]
+  
+  
+  
   coverage[i] = lower <= mu & upper >= mu
-}
+  # normies_coverage[,1] = lower <= mu & upper >= mu
+  }
+  #normies_coverage[1] = mean(coverage)
 
 # part (i)
-mean(coverage)
+
 ```
 
