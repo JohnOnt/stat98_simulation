@@ -72,3 +72,10 @@ boot.ci(boot_out, type = "norm") # Parametric (standard normal)
 ```{r}
 boot.ci(boot_out)$basic[5]
 ```
+
+```{r}
+library(kernelboot)
+
+b1 <- kernelboot(data=normies, statistic=get_estimate_NormPois)
+summary(b1)
+```
