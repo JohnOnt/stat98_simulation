@@ -176,7 +176,7 @@ for (i in 1:nsims) {
   
   
   
-  coverage[i] = lower <= mu & upper >= mu
+  # coverage[i] = lower <= mu & upper >= mu
   # normies_coverage[,1] = lower <= mu & upper >= mu
   }
   #normies_coverage[1] = mean(coverage)
