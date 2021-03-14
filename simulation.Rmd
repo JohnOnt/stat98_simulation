@@ -189,8 +189,8 @@ geomies10
 
 ```{r, warning = F, message=F}
 # Create simulation variables
-nsims = 100
-lambda = 0.7
+nsims = 500
+lambda = 0.15
 
 # Initialize Data Matrix
 geomies_coverage <- matrix(nrow = nsims, ncol = 15)
@@ -204,7 +204,6 @@ for (i in 1:nsims) {
   
   # Initialize row vector to be inserted into data matrix
   cov.i <- c()
-  
   #-----------------------------------------------------------------------------
   # Calculate t-based confidence intervals
   #-----------------------------------------------------------------------------
@@ -268,9 +267,18 @@ for (i in 1:nsims) {
     subt <- 0
     if (boot_types[j] == "norm") {subt = 2}
     
+    if (sum(geomies10) == 0) {
+      lower10 = 0
+      upper10 = 0
+    }
+    else {
+      # Calculate lower and upper bounds for boot CI as before
+      lower10 = boot.ci(geomies10.boot, type = boot_types[j])[[4]][4-subt]
+      upper10 = boot.ci(geomies10.boot, type = boot_types[j])[[4]][5-subt]
+    }
     # Calculate lower and upper bounds for boot CI as before
-    lower10 = boot.ci(geomies10.boot, type = boot_types[j])[[4]][4-subt]
-    upper10 = boot.ci(geomies10.boot, type = boot_types[j])[[4]][5-subt]
+    # lower10 = boot.ci(geomies10.boot, type = boot_types[j])[[4]][4-subt]
+    # upper10 = boot.ci(geomies10.boot, type = boot_types[j])[[4]][5-subt]
     
     lower30 = boot.ci(geomies30.boot, type = boot_types[j])[[4]][4-subt]
     upper30 = boot.ci(geomies30.boot, type = boot_types[j])[[4]][5-subt]
@@ -305,6 +313,12 @@ for (i in 1:nsims) {
 
 # Print Coverage rate
 print_coverage(geomies_coverage)
+```
+
+```{r}
+hist(rexp(500, 4))
+hist(rexp(500, 1))
+# hist(rgeom(50, 0.15))
 ```
 
 \section{Exponential Distribution Simulation}
