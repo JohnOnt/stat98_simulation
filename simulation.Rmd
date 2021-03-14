@@ -31,13 +31,14 @@ get_estimate_Geom <- function(data, indices) {
 ```
 
 \section{Normal Distribution Simulation}
-```{r, message=F}
-# Set simulation parameters
+
+```{r, warning = F, message=F}
+# Create variables
 nsims = 100
 mu = 0
 
 # Initialize Data Matrix
-normies_coverage <- matrix(nrow = nsims, ncol = 12)
+normies_coverage <- matrix(nrow = nsims, ncol = 15)
 
 for (i in 1:nsims) {
   # Generate data of different sample sizes
@@ -128,8 +129,12 @@ for (i in 1:nsims) {
   boot100 <- kernelboot(data=normies100, statistic=get_estimate_NormPois)
   lower100 <- summary(boot100)[3]; upper100 <- summary(boot100)[5]
   
+  cov.i <- c(cov.i, (lower10 <= mu & upper10 >= mu),
+               (lower30 <= mu & upper30 >= mu),
+               (lower100 <= mu & upper100 >= mu))
   # Set row of data matrix equal to the vector of data we calculated for this 
   # individual simulation
+  
   normies_coverage[i,] <- cov.i
 }
 
