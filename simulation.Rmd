@@ -103,17 +103,17 @@ for (i in 1:nsims) {
   normies10.boot <- boot(
       data = normies10,
       statistic = get_estimate_NormPois,
-      R = 100
+      R = 200
   )
   normies30.boot <- boot(
       data = normies30,
       statistic = get_estimate_NormPois,
-      R = 100
+      R = 200
   )
   normies100.boot <- boot(
       data = normies100,
       statistic = get_estimate_NormPois,
-      R = 100
+      R = 200
   )
   
   # This whole loop calculates the three boot types in the list below
@@ -247,17 +247,17 @@ for (i in 1:nsims) {
   geomies10.boot <- boot(
       data = geomies10,
       statistic = get_estimate_Geom,
-      R = 100
+      R = 200
   )
   geomies30.boot <- boot(
       data = geomies30,
       statistic = get_estimate_Geom,
-      R = 100
+      R = 200
   )
   geomies100.boot <- boot(
       data = geomies100,
       statistic = get_estimate_Geom,
-      R = 100
+      R = 200
   )
   
   # This whole loop calculates the three boot types in the list below
@@ -371,17 +371,17 @@ for (i in 1:nsims) {
   expos10.boot <- boot(
       data = expos10,
       statistic = get_estimate_Expo,
-      R = 100
+      R = 200
   )
   expos30.boot <- boot(
       data = expos30,
       statistic = get_estimate_Expo,
-      R = 100
+      R = 200
   )
   expos100.boot <- boot(
       data = expos100,
       statistic = get_estimate_Expo,
-      R = 100
+      R = 200
   )
   
   # This whole loop calculates the three boot types in the list below
@@ -484,17 +484,127 @@ for (i in 1:nsims) {
   pois10.boot <- boot(
       data = pois10,
       statistic = get_estimate_NormPois,
-      R = 100
+      R = 200
   )
   pois30.boot <- boot(
       data = pois30,
       statistic = get_estimate_NormPois,
-      R = 100
+      R = 200
   )
   pois100.boot <- boot(
       data = pois100,
       statistic = get_estimate_NormPois,
-      R = 100
+      R = 200
+  )
+  
+  # This whole loop calculates the three boot types in the list below
+  boot_types <- c("perc", "basic", "norm")
+  
+  for (j in 1:(length(boot_types))) {
+    subt <- 0
+    if (boot_types[j] == "norm") {subt = 2}
+    
+    # Calculate lower and upper bounds for boot CI as before
+    lower10 = boot.ci(pois10.boot, type = boot_types[j])[[4]][4-subt]
+    upper10 = boot.ci(pois10.boot, type = boot_types[j])[[4]][5-subt]
+    
+    lower30 = boot.ci(pois30.boot, type = boot_types[j])[[4]][4-subt]
+    upper30 = boot.ci(pois30.boot, type = boot_types[j])[[4]][5-subt]
+    
+    lower100 = boot.ci(pois100.boot, type = boot_types[j])[[4]][4-subt]
+    upper100 = boot.ci(pois100.boot, type = boot_types[j])[[4]][5-subt]
+    
+    # Append whether the true parameter is covered to dataframe
+    cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
+               (lower30 <= lambda & upper30 >= lambda),
+               (lower100 <= lambda & upper100 >= lambda))
+  }
+  
+  # Lastly, we calculate the 'Smooth' Bootstrap Confidence Intervals
+  boot10 <- kernelboot(data=pois10, statistic=get_estimate_NormPois)
+  lower10 <- summary(boot10)[3]; upper10 <- summary(boot10)[5]
+  
+  boot30 <- kernelboot(data=pois30, statistic=get_estimate_NormPois)
+  lower30 <- summary(boot30)[3]; upper30 <- summary(boot30)[5]
+  
+  boot100 <- kernelboot(data=pois100, statistic=get_estimate_NormPois)
+  lower100 <- summary(boot100)[3]; upper100 <- summary(boot100)[5]
+  
+  cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
+               (lower30 <= lambda & upper30 >= lambda),
+               (lower100 <= lambda & upper100 >= lambda))
+  # Set row of data matrix equal to the vector of data we calculated for this 
+  # individual simulation
+  
+  pois_coverage[i,] <- cov.i
+}
+
+# Print Coverage rate
+print_coverage(pois_coverage)
+```
+
+
+\section{Binomial Distribution Simulation}
+
+```{r, warning = F, message=F}
+# Create simulation variables
+nsims = 100
+lambda = 4
+
+# Initialize Data Matrix
+pois_coverage <- matrix(nrow = nsims, ncol = 15)
+
+for (i in 1:nsims) {
+  # Generate data of different sample sizes
+  pois10 = rpois(10, lambda)
+  pois30 = rpois(30, lambda)
+  pois100 = rpois(100, lambda)
+  
+  # Initialize row vector to be inserted into data matrix
+  cov.i <- c()
+  
+  #-----------------------------------------------------------------------------
+  # Calculate t-based confidence intervals
+  #-----------------------------------------------------------------------------
+  
+  # Construct t-based Lower and Upper bound CI for data of size n
+  lower10t <- t.test(pois10, conf.level = 0.95)$conf.int[1]
+  upper10t <- t.test(pois10, conf.level = 0.95)$conf.int[2]
+  
+  # Do the same for the rest of the n sample sizes
+  lower30t <- t.test(pois30, conf.level = 0.95)$conf.int[1]
+  upper30t <- t.test(pois30, conf.level = 0.95)$conf.int[2]
+  
+  lower100t <- t.test(pois100, conf.level = 0.95)$conf.int[1]
+  upper100t <- t.test(pois100, conf.level = 0.95)$conf.int[2]
+    
+  # Get bool on whether confidence intervals contain the true parameter
+  # and append that to cov.i, the row matrix we will add to the entire simulation's
+  # Data Matrix
+  cov.i <- c(cov.i, as.numeric((lower10t <= lambda & upper10t >= lambda)),
+            (lower30t <= lambda & upper30t >= lambda),
+            (lower100t <= lambda & upper100t >= lambda))
+  
+  #-----------------------------------------------------------------------------
+  # Calculate Boot confidence intervals
+  #-----------------------------------------------------------------------------
+  
+  # Create boot objects for the three sample sizes
+  # These boot objects are used for the percentile, basic, and normal boot methods
+  pois10.boot <- boot(
+      data = pois10,
+      statistic = get_estimate_NormPois,
+      R = 200
+  )
+  pois30.boot <- boot(
+      data = pois30,
+      statistic = get_estimate_NormPois,
+      R = 200
+  )
+  pois100.boot <- boot(
+      data = pois100,
+      statistic = get_estimate_NormPois,
+      R = 200
   )
   
   # This whole loop calculates the three boot types in the list below
