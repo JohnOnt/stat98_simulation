@@ -8,7 +8,7 @@ output:
 ```{r}
 library(kernelboot)
 library(boot)
-set.seed(98)
+set.seed(123)
 ```
 
 ```{r}
@@ -198,7 +198,7 @@ geomies_coverage <- matrix(nrow = nsims, ncol = 15)
 for (i in 1:nsims) {
 #i = 3
   # Generate data of different sample sizes
-  geomies10 = rgeom(50, lambda)
+  geomies10 = rgeom(10, lambda)
   geomies30 = rgeom(30, lambda)
   geomies100 = rgeom(100, lambda)
   
@@ -210,15 +210,27 @@ for (i in 1:nsims) {
   #-----------------------------------------------------------------------------
   
   # Construct t-based Lower and Upper bound CI for data of size n
-  lower10t <- t.test(geomies10, conf.level = 0.95)$conf.int[1]
-  upper10t <- t.test(geomies10, conf.level = 0.95)$conf.int[2]
+  n <- length(geomies10)
+  Ts <- StudentsT(df=n-1)
+  lower10t <- mean(geomies10) + quantile(Ts, 0.05 / 2) * sd(geomies10) / sqrt(n)
+  #t.test(geomies10, conf.level = 0.95, )$conf.int[1]
+  upper10t <- mean(geomies10) + quantile(Ts, 1 - 0.05 / 2) * sd(geomies10) / sqrt(n)
+  #t.test(geomies10, conf.level = 0.95)$conf.int[2]
   
   # Do the same for the rest of the n sample sizes
-  lower30t <- t.test(geomies30, conf.level = 0.95)$conf.int[1]
-  upper30t <- t.test(geomies30, conf.level = 0.95)$conf.int[2]
+  n <- length(geomies30)
+  Ts <- StudentsT(df=n-1)
+  lower30t <- mean(geomies30) + quantile(Ts, 0.05 / 2) * sd(geomies30) / sqrt(n)
+  #t.test(geomies30, conf.level = 0.95)$conf.int[1]
+  upper30t <- mean(geomies30) + quantile(Ts, 1 - 0.05 / 2) * sd(geomies30) / sqrt(n)
+    #t.test(geomies30, conf.level = 0.95)$conf.int[2]
   
-  lower100t <- t.test(geomies100, conf.level = 0.95)$conf.int[1]
-  upper100t <- t.test(geomies100, conf.level = 0.95)$conf.int[2]
+  n <- length(geomies30)
+  Ts <- StudentsT(df=n-1)
+  lower100t <- mean(geomies100) + quantile(Ts, 0.05 / 2) * sd(geomies100) / sqrt(n)
+    #t.test(geomies100, conf.level = 0.95)$conf.int[1]
+  upper100t <- mean(geomies100) + quantile(Ts, 1 - 0.05 / 2) * sd(geomies100) / sqrt(n)
+    #t.test(geomies100, conf.level = 0.95)$conf.int[2]
     
   # Get bool on whether confidence intervals contain the true parameter
   # and append that to cov.i, the row matrix we will add to the entire simulation's
