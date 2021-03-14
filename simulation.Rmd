@@ -309,17 +309,17 @@ for (i in 1:nsims) {
   # These boot objects are used for the percentile, basic, and normal boot methods
   expos10.boot <- boot(
       data = expos10,
-      statistic = get_estimate_Geom,
+      statistic = get_estimate_Expo,
       R = 100
   )
   expos30.boot <- boot(
       data = expos30,
-      statistic = get_estimate_Geom,
+      statistic = get_estimate_Expo,
       R = 100
   )
   expos100.boot <- boot(
       data = expos100,
-      statistic = get_estimate_Geom,
+      statistic = get_estimate_Expo,
       R = 100
   )
   
