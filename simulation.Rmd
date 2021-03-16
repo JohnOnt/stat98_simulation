@@ -192,7 +192,8 @@ print_coverage(normies_coverage, normies_width)
 ```{r, warning = F, message=F}
 # Create simulation variables
 nsims = 100
-lambda = 0.15
+p = 0.15
+mean = (1-p)/p
 
 # Initialize Data Matrix
 geomies_coverage <- matrix(nrow = nsims, ncol = 15)
@@ -201,9 +202,9 @@ geomies_width <- matrix(nrow = nsims, ncol = 15)
 for (i in 1:nsims) {
 #i = 3
   # Generate data of different sample sizes
-  geomies10 = rgeom(10, lambda)
-  geomies30 = rgeom(30, lambda)
-  geomies100 = rgeom(100, lambda)
+  geomies10 = rgeom(10, p)
+  geomies30 = rgeom(30, p)
+  geomies100 = rgeom(100, p)
   
   # Initialize row vector to be inserted into data matrix
   cov.i <- c()
@@ -226,9 +227,9 @@ for (i in 1:nsims) {
   # Get bool on whether confidence intervals contain the true parameter
   # and append that to cov.i, the row matrix we will add to the entire simulation's
   # Data Matrix
-  cov.i <- c(cov.i, as.numeric((lower10t <= lambda & upper10t >= lambda)),
-            (lower30t <= lambda & upper30t >= lambda),
-            (lower100t <= lambda & upper100t >= lambda))
+  cov.i <- c(cov.i, as.numeric((lower10t <= mean & upper10t >= mean)),
+            (lower30t <= mean & upper30t >= mean),
+            (lower100t <= mean & upper100t >= mean))
   
   width.i <- c(width.i, (upper10t - lower10t),
                (upper30t - lower30t),
@@ -282,9 +283,9 @@ for (i in 1:nsims) {
     upper100 = boot.ci(geomies100.boot, type = boot_types[j])[[4]][5-subt]
     
     # Append whether the true parameter is covered to dataframe
-    cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
-               (lower30 <= lambda & upper30 >= lambda),
-               (lower100 <= lambda & upper100 >= lambda))
+    cov.i <- c(cov.i, (lower10 <= mean & upper10 >= mean),
+               (lower30 <= mean & upper30 >= mean),
+               (lower100 <= mean & upper100 >= mean))
     
     width.i <- c(width.i, (upper10 - lower10),
                 (upper30 - lower30),
@@ -301,9 +302,9 @@ for (i in 1:nsims) {
   boot100 <- kernelboot(data=geomies100, statistic=get_estimate_NormPois)
   lower100 <- summary(boot100)[3]; upper100 <- summary(boot100)[5]
   
-  cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
-               (lower30 <= lambda & upper30 >= lambda),
-               (lower100 <= lambda & upper100 >= lambda))
+  cov.i <- c(cov.i, (lower10 <= mean & upper10 >= mean),
+               (lower30 <= mean & upper30 >= mean),
+               (lower100 <= mean & upper100 >= mean))
   
   width.i <- c(width.i, (upper10 - lower10),
               (upper30 - lower30),
@@ -331,6 +332,7 @@ hist(rexp(500, 1))
 # Create simulation variables
 nsims = 100
 lambda = 4
+mean = 1/lambda
 
 # Initialize Data Matrix
 expos_coverage <- matrix(nrow = nsims, ncol = 15)
@@ -364,9 +366,9 @@ for (i in 1:nsims) {
   # Get bool on whether confidence intervals contain the true parameter
   # and append that to cov.i, the row matrix we will add to the entire simulation's
   # Data Matrix
-  cov.i <- c(cov.i, as.numeric((lower10t <= lambda & upper10t >= lambda)),
-            (lower30t <= lambda & upper30t >= lambda),
-            (lower100t <= lambda & upper100t >= lambda))
+  cov.i <- c(cov.i, as.numeric((lower10t <= mean & upper10t >= mean)),
+            (lower30t <= mean & upper30t >= mean),
+            (lower100t <= mean & upper100t >= mean))
   
   width.i <- c(width.i, (upper10t - lower10t),
                (upper30t - lower30t),
@@ -411,9 +413,9 @@ for (i in 1:nsims) {
     upper100 = boot.ci(expos100.boot, type = boot_types[j])[[4]][5-subt]
     
     # Append whether the true parameter is covered to dataframe
-    cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
-               (lower30 <= lambda & upper30 >= lambda),
-               (lower100 <= lambda & upper100 >= lambda))
+    cov.i <- c(cov.i, (lower10 <= mean & upper10 >= mean),
+               (lower30 <= mean & upper30 >= mean),
+               (lower100 <= mean & upper100 >= mean))
     
     width.i <- c(width.i, (upper10 - lower10),
                 (upper30 - lower30),
@@ -431,9 +433,9 @@ for (i in 1:nsims) {
   boot100 <- kernelboot(data=expos100, statistic=get_estimate_NormPois, kernel = kernel.type)
   lower100 <- summary(boot100)[3]; upper100 <- summary(boot100)[5]
   
-  cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
-               (lower30 <= lambda & upper30 >= lambda),
-               (lower100 <= lambda & upper100 >= lambda))
+  cov.i <- c(cov.i, (lower10 <= mean & upper10 >= mean),
+               (lower30 <= mean & upper30 >= mean),
+               (lower100 <= mean & upper100 >= mean))
   
   width.i <- c(width.i, (upper10 - lower10),
               (upper30 - lower30),
@@ -583,6 +585,7 @@ print_coverage(pois_coverage, pois_width)
 nsims = 100
 p = 0.5
 size = 50
+mean = size*p
 
 # Initialize Data Matrix
 bin_coverage <- matrix(nrow = nsims, ncol = 15)
@@ -616,9 +619,9 @@ for (i in 1:nsims) {
   # Get bool on whether confidence intervals contain the true parameter
   # and append that to cov.i, the row matrix we will add to the entire simulation's
   # Data Matrix
-  cov.i <- c(cov.i, as.numeric((lower10t <= lambda & upper10t >= lambda)),
-            (lower30t <= lambda & upper30t >= lambda),
-            (lower100t <= lambda & upper100t >= lambda))
+  cov.i <- c(cov.i, as.numeric((lower10t <= mean & upper10t >= mean)),
+            (lower30t <= mean & upper30t >= mean),
+            (lower100t <= mean & upper100t >= mean))
   width.i <- c(width.i, (upper10t - lower10t),
              (upper30t - lower30t),
              (upper100t - lower100t))
@@ -663,9 +666,9 @@ for (i in 1:nsims) {
     upper100 = boot.ci(bin100.boot, type = boot_types[j])[[4]][5-subt]
     
     # Append whether the true parameter is covered to dataframe
-    cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
-               (lower30 <= lambda & upper30 >= lambda),
-               (lower100 <= lambda & upper100 >= lambda))
+    cov.i <- c(cov.i, (lower10 <= mean & upper10 >= mean),
+               (lower30 <= mean & upper30 >= mean),
+               (lower100 <= mean & upper100 >= mean))
     width.i <- c(width.i, (upper10 - lower10),
               (upper30 - lower30),
               (upper100 - lower100))
@@ -681,9 +684,9 @@ for (i in 1:nsims) {
   boot100 <- kernelboot(data=bin100, statistic=get_estimate_NormPois)
   lower100 <- summary(boot100)[3]; upper100 <- summary(boot100)[5]
   
-  cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
-               (lower30 <= lambda & upper30 >= lambda),
-               (lower100 <= lambda & upper100 >= lambda))
+  cov.i <- c(cov.i, (lower10 <= mean & upper10 >= mean),
+               (lower30 <= mean & upper30 >= mean),
+               (lower100 <= mean & upper100 >= mean))
   width.i <- c(width.i, (upper10 - lower10),
               (upper30 - lower30),
               (upper100 - lower100))
