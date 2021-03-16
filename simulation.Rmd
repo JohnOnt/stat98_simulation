@@ -7,6 +7,7 @@ output:
 
 ```{r}
 library(kernelboot)
+# library(distributions3)
 library(boot)
 set.seed(123)
 ```
@@ -35,20 +36,27 @@ get_estimate_Expo <- function(data, indices) {
 }
 
 # Function for printing results
-print_coverage <- function(data) {
+print_coverage <- function(data, widths) {
+  # Get mean coverage probabilities
   vec <- c()
-  for (i in 1:ncol(normies_coverage)) {
+  for (i in 1:ncol(data)) {
      vec <- c(vec, mean(data[,i]))
   }
+  # Get mean widths
+  vec2 <- c()
+  for (i in 1:ncol(widths)) {
+     vec2 <- c(vec2, mean(widths[,i]))
+  }
   
-  tmp.df <- data.frame(matrix(ncol=1, nrow=15))
-  colnames(tmp.df) <- c('coverage probability')
+  tmp.df <- data.frame(matrix(ncol=2, nrow=15))
+  colnames(tmp.df) <- c('coverage probability', 'average width')
   rownames(tmp.df) <- c('t-based 10', 't-based 30', 't-based 100',
                         'perc boot 10', 'perc boot 30', 'perc boot 100',
                         'basic boot 10', 'basic boot 30', 'basic boot 100',
                         'norm boot 10', 'norm boot 30', 'norm boot 100',
                         'smooth boot 10', 'smooth boot 30', 'smooth boot 100')
-  tmp.df[1] <- vec
+  tmp.df[,1] <- vec
+  tmp.df[,2] <- vec2
   print(tmp.df)
 }
 ```
@@ -62,6 +70,7 @@ mu = 0
 
 # Initialize Data Matrix
 normies_coverage <- matrix(nrow = nsims, ncol = 15)
+normies_width <- matrix(nrow = nsims, ncol = 15)
 
 for (i in 1:nsims) {
   # Generate data of different sample sizes
@@ -71,6 +80,7 @@ for (i in 1:nsims) {
   
   # Initialize row vector to be inserted into data matrix
   cov.i <- c()
+  width.i <- c()
   
   #-----------------------------------------------------------------------------
   # Calculate t-based confidence intervals
@@ -93,6 +103,10 @@ for (i in 1:nsims) {
   cov.i <- c(cov.i, as.numeric((lower10t <= mu & upper10t >= mu)),
             (lower30t <= mu & upper30t >= mu),
             (lower100t <= mu & upper100t >= mu))
+  
+  width.i <- c(width.i, (upper10t - lower10t),
+               (upper30t - lower30t),
+               (upper100t - lower100t))
   
   #-----------------------------------------------------------------------------
   # Calculate Boot confidence intervals
@@ -117,7 +131,7 @@ for (i in 1:nsims) {
   )
   
   # This whole loop calculates the three boot types in the list below
-  boot_types <- c("perc", "basic", "norm")
+  boot_types <- c("perc", "basic", "bca")
   
   for (j in 1:(length(boot_types))) {
     subt <- 0
@@ -137,6 +151,10 @@ for (i in 1:nsims) {
     cov.i <- c(cov.i, (lower10 <= mu & upper10 >= mu),
                (lower30 <= mu & upper30 >= mu),
                (lower100 <= mu & upper100 >= mu))
+    
+    width.i <- c(width.i, (upper10 - lower10),
+                (upper30 - lower30),
+                (upper100 - lower100))
   }
   
   # Lastly, we calculate the 'Smooth' Bootstrap Confidence Intervals
@@ -152,48 +170,33 @@ for (i in 1:nsims) {
   cov.i <- c(cov.i, (lower10 <= mu & upper10 >= mu),
                (lower30 <= mu & upper30 >= mu),
                (lower100 <= mu & upper100 >= mu))
+  
+  width.i <- c(width.i, (upper10 - lower10),
+              (upper30 - lower30),
+              (upper100 - lower100))
   # Set row of data matrix equal to the vector of data we calculated for this 
   # individual simulation
   
   normies_coverage[i,] <- cov.i
+  normies_width[i,] <- width.i
 }
 
 # Print Coverage rate
-print_coverage(normies_coverage)  
+print_coverage(normies_coverage, normies_width)  
 
 ```
 
 
 \section{Geometric Distribution Simulation}
-```{r}
-library(distributions3)
-t.test(normies10, conf.level = 0.95)
-n <- length(normies10)
-T9 <- StudentsT(df=n-1)
-mean(normies10) + quantile(T9, 0.05 / 2) * sd(normies10) / sqrt(n)
-mean(normies10) + quantile(T9, 1 - 0.05 / 2) * sd(normies10) / sqrt(n)
-
-```
-```{r}
-geomies10 = rgeom(10, 0.7)
-
-t.test(geomies10, conf.level = 0.95)$conf.int[2]
-n <- length(geomies10)
-T9 <- StudentsT(df=n-1)
-mean(geomies10) + quantile(T9, 0.05 / 2) * sd(geomies10) / sqrt(n)
-mean(geomies10) + quantile(T9, 1 - 0.05 / 2) * sd(geomies10) / sqrt(n)
-
-geomies10
-```
-
 
 ```{r, warning = F, message=F}
 # Create simulation variables
-nsims = 500
+nsims = 100
 lambda = 0.15
 
 # Initialize Data Matrix
 geomies_coverage <- matrix(nrow = nsims, ncol = 15)
+geomies_width <- matrix(nrow = nsims, ncol = 15)
 
 for (i in 1:nsims) {
 #i = 3
@@ -204,32 +207,21 @@ for (i in 1:nsims) {
   
   # Initialize row vector to be inserted into data matrix
   cov.i <- c()
+  width.i <- c()
   #-----------------------------------------------------------------------------
   # Calculate t-based confidence intervals
   #-----------------------------------------------------------------------------
   
   # Construct t-based Lower and Upper bound CI for data of size n
-  n <- length(geomies10)
-  Ts <- StudentsT(df=n-1)
-  lower10t <- mean(geomies10) + quantile(Ts, 0.05 / 2) * sd(geomies10) / sqrt(n)
-  #t.test(geomies10, conf.level = 0.95, )$conf.int[1]
-  upper10t <- mean(geomies10) + quantile(Ts, 1 - 0.05 / 2) * sd(geomies10) / sqrt(n)
-  #t.test(geomies10, conf.level = 0.95)$conf.int[2]
+  lower10t <- t.test(geomies10, conf.level = 0.95, )$conf.int[1]
+  upper10t <- t.test(geomies10, conf.level = 0.95)$conf.int[2]
   
   # Do the same for the rest of the n sample sizes
-  n <- length(geomies30)
-  Ts <- StudentsT(df=n-1)
-  lower30t <- mean(geomies30) + quantile(Ts, 0.05 / 2) * sd(geomies30) / sqrt(n)
-  #t.test(geomies30, conf.level = 0.95)$conf.int[1]
-  upper30t <- mean(geomies30) + quantile(Ts, 1 - 0.05 / 2) * sd(geomies30) / sqrt(n)
-    #t.test(geomies30, conf.level = 0.95)$conf.int[2]
+  lower30t <- t.test(geomies30, conf.level = 0.95)$conf.int[1]
+  upper30t <- t.test(geomies30, conf.level = 0.95)$conf.int[2]
   
-  n <- length(geomies30)
-  Ts <- StudentsT(df=n-1)
-  lower100t <- mean(geomies100) + quantile(Ts, 0.05 / 2) * sd(geomies100) / sqrt(n)
-    #t.test(geomies100, conf.level = 0.95)$conf.int[1]
-  upper100t <- mean(geomies100) + quantile(Ts, 1 - 0.05 / 2) * sd(geomies100) / sqrt(n)
-    #t.test(geomies100, conf.level = 0.95)$conf.int[2]
+  lower100t <- t.test(geomies100, conf.level = 0.95)$conf.int[1]
+  upper100t <- t.test(geomies100, conf.level = 0.95)$conf.int[2]
     
   # Get bool on whether confidence intervals contain the true parameter
   # and append that to cov.i, the row matrix we will add to the entire simulation's
@@ -238,6 +230,9 @@ for (i in 1:nsims) {
             (lower30t <= lambda & upper30t >= lambda),
             (lower100t <= lambda & upper100t >= lambda))
   
+  width.i <- c(width.i, (upper10t - lower10t),
+               (upper30t - lower30t),
+               (upper100t - lower100t))
   #-----------------------------------------------------------------------------
   # Calculate Boot confidence intervals
   #-----------------------------------------------------------------------------
@@ -290,6 +285,10 @@ for (i in 1:nsims) {
     cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
                (lower30 <= lambda & upper30 >= lambda),
                (lower100 <= lambda & upper100 >= lambda))
+    
+    width.i <- c(width.i, (upper10 - lower10),
+                (upper30 - lower30),
+                (upper100 - lower100))
   }
   
   # Lastly, we calculate the 'Smooth' Bootstrap Confidence Intervals
@@ -305,14 +304,19 @@ for (i in 1:nsims) {
   cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
                (lower30 <= lambda & upper30 >= lambda),
                (lower100 <= lambda & upper100 >= lambda))
+  
+  width.i <- c(width.i, (upper10 - lower10),
+              (upper30 - lower30),
+              (upper100 - lower100))
   # Set row of data matrix equal to the vector of data we calculated for this 
   # individual simulation
   
   geomies_coverage[i,] <- cov.i
+  geomies_width[i,] <- width.i
 }
 
 # Print Coverage rate
-print_coverage(geomies_coverage)
+print_coverage(geomies_coverage, geomies_width)
 ```
 
 ```{r}
@@ -330,6 +334,7 @@ lambda = 4
 
 # Initialize Data Matrix
 expos_coverage <- matrix(nrow = nsims, ncol = 15)
+expos_width <- matrix(nrow = nsims, ncol = 15)
 
 for (i in 1:nsims) {
   # Generate data of different sample sizes
@@ -339,6 +344,7 @@ for (i in 1:nsims) {
   
   # Initialize row vector to be inserted into data matrix
   cov.i <- c()
+  width.i <- c()
   
   #-----------------------------------------------------------------------------
   # Calculate t-based confidence intervals
@@ -362,6 +368,9 @@ for (i in 1:nsims) {
             (lower30t <= lambda & upper30t >= lambda),
             (lower100t <= lambda & upper100t >= lambda))
   
+  width.i <- c(width.i, (upper10t - lower10t),
+               (upper30t - lower30t),
+               (upper100t - lower100t))
   #-----------------------------------------------------------------------------
   # Calculate Boot confidence intervals
   #-----------------------------------------------------------------------------
@@ -405,6 +414,10 @@ for (i in 1:nsims) {
     cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
                (lower30 <= lambda & upper30 >= lambda),
                (lower100 <= lambda & upper100 >= lambda))
+    
+    width.i <- c(width.i, (upper10 - lower10),
+                (upper30 - lower30),
+                (upper100 - lower100))
   }
   
   # Lastly, we calculate the 'Smooth' Bootstrap Confidence Intervals
@@ -421,14 +434,19 @@ for (i in 1:nsims) {
   cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
                (lower30 <= lambda & upper30 >= lambda),
                (lower100 <= lambda & upper100 >= lambda))
+  
+  width.i <- c(width.i, (upper10 - lower10),
+              (upper30 - lower30),
+              (upper100 - lower100))
   # Set row of data matrix equal to the vector of data we calculated for this 
   # individual simulation
   
   expos_coverage[i,] <- cov.i
+  expos_width[i,] <- width.i
 }
 
 # Print Coverage rate
-print_coverage(expos_coverage)
+print_coverage(expos_coverage, expos_width)
 ```
 
 
@@ -443,6 +461,7 @@ lambda = 4
 
 # Initialize Data Matrix
 pois_coverage <- matrix(nrow = nsims, ncol = 15)
+pois_width <- matrix(nrow = nsims, ncol = 15)
 
 for (i in 1:nsims) {
   # Generate data of different sample sizes
@@ -452,6 +471,7 @@ for (i in 1:nsims) {
   
   # Initialize row vector to be inserted into data matrix
   cov.i <- c()
+  width.i <- c()
   
   #-----------------------------------------------------------------------------
   # Calculate t-based confidence intervals
@@ -475,6 +495,9 @@ for (i in 1:nsims) {
             (lower30t <= lambda & upper30t >= lambda),
             (lower100t <= lambda & upper100t >= lambda))
   
+  width.i <- c(width.i, (upper10t - lower10t),
+               (upper30t - lower30t),
+               (upper100t - lower100t))
   #-----------------------------------------------------------------------------
   # Calculate Boot confidence intervals
   #-----------------------------------------------------------------------------
@@ -518,6 +541,10 @@ for (i in 1:nsims) {
     cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
                (lower30 <= lambda & upper30 >= lambda),
                (lower100 <= lambda & upper100 >= lambda))
+    
+    width.i <- c(width.i, (upper10 - lower10),
+                (upper30 - lower30),
+                (upper100 - lower100))
   }
   
   # Lastly, we calculate the 'Smooth' Bootstrap Confidence Intervals
@@ -533,14 +560,19 @@ for (i in 1:nsims) {
   cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
                (lower30 <= lambda & upper30 >= lambda),
                (lower100 <= lambda & upper100 >= lambda))
+  
+  width.i <- c(width.i, (upper10 - lower10),
+              (upper30 - lower30),
+              (upper100 - lower100))
   # Set row of data matrix equal to the vector of data we calculated for this 
   # individual simulation
   
   pois_coverage[i,] <- cov.i
+  pois_width[i,] <- width.i
 }
 
 # Print Coverage rate
-print_coverage(pois_coverage)
+print_coverage(pois_coverage, pois_width)
 ```
 
 
