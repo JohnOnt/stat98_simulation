@@ -22,17 +22,17 @@ get_estimate_NormPois <- function(data, indices) {
 
 # For Binomial Distribution
 get_estimate_Binom <- function(data, indices) {
-  return(mean(data[indices])/length(data[indices]))
+  return(mean(data[indices]))
 }
 
 # For Geometric Distribution
 get_estimate_Geom <- function(data, indices) {
-  return(1/mean(data[indices]))
+  return(mean(data[indices]))
 }
 
 # For Exponential Distribution
 get_estimate_Expo <- function(data, indices) {
-  return(1/mean(data[indices]))
+  return(mean(data[indices]))
 }
 
 # Function for printing results
@@ -256,7 +256,7 @@ for (i in 1:nsims) {
   )
   
   # This whole loop calculates the three boot types in the list below
-  boot_types <- c("perc", "basic", "norm")
+  boot_types <- c("perc", "basic", "bca")
   
   for (j in 1:(length(boot_types))) {
     subt <- 0
@@ -394,7 +394,7 @@ for (i in 1:nsims) {
   )
   
   # This whole loop calculates the three boot types in the list below
-  boot_types <- c("perc", "basic", "norm")
+  boot_types <- c("perc", "basic", "bca")
   
   for (j in 1:(length(boot_types))) {
     subt <- 0
@@ -521,7 +521,7 @@ for (i in 1:nsims) {
   )
   
   # This whole loop calculates the three boot types in the list below
-  boot_types <- c("perc", "basic", "norm")
+  boot_types <- c("perc", "basic", "bca")
   
   for (j in 1:(length(boot_types))) {
     subt <- 0
