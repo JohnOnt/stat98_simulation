@@ -581,16 +581,17 @@ print_coverage(pois_coverage, pois_width)
 ```{r, warning = F, message=F}
 # Create simulation variables
 nsims = 100
-lambda = 4
+p = 0.5
+size = 50
 
 # Initialize Data Matrix
-pois_coverage <- matrix(nrow = nsims, ncol = 15)
+bin_coverage <- matrix(nrow = nsims, ncol = 15)
 
 for (i in 1:nsims) {
   # Generate data of different sample sizes
-  pois10 = rpois(10, lambda)
-  pois30 = rpois(30, lambda)
-  pois100 = rpois(100, lambda)
+  bin10 = rbinom(10, size, p)
+  bin30 = rbinom(30, size, p)
+  bin100 = rbinom(100, size, p)
   
   # Initialize row vector to be inserted into data matrix
   cov.i <- c()
@@ -600,15 +601,15 @@ for (i in 1:nsims) {
   #-----------------------------------------------------------------------------
   
   # Construct t-based Lower and Upper bound CI for data of size n
-  lower10t <- t.test(pois10, conf.level = 0.95)$conf.int[1]
-  upper10t <- t.test(pois10, conf.level = 0.95)$conf.int[2]
+  lower10t <- t.test(bin10, conf.level = 0.95)$conf.int[1]
+  upper10t <- t.test(bin10, conf.level = 0.95)$conf.int[2]
   
   # Do the same for the rest of the n sample sizes
-  lower30t <- t.test(pois30, conf.level = 0.95)$conf.int[1]
-  upper30t <- t.test(pois30, conf.level = 0.95)$conf.int[2]
+  lower30t <- t.test(bin30, conf.level = 0.95)$conf.int[1]
+  upper30t <- t.test(bin30, conf.level = 0.95)$conf.int[2]
   
-  lower100t <- t.test(pois100, conf.level = 0.95)$conf.int[1]
-  upper100t <- t.test(pois100, conf.level = 0.95)$conf.int[2]
+  lower100t <- t.test(bin100, conf.level = 0.95)$conf.int[1]
+  upper100t <- t.test(bin100, conf.level = 0.95)$conf.int[2]
     
   # Get bool on whether confidence intervals contain the true parameter
   # and append that to cov.i, the row matrix we will add to the entire simulation's
@@ -623,19 +624,19 @@ for (i in 1:nsims) {
   
   # Create boot objects for the three sample sizes
   # These boot objects are used for the percentile, basic, and normal boot methods
-  pois10.boot <- boot(
-      data = pois10,
-      statistic = get_estimate_NormPois,
+  bin10.boot <- boot(
+      data = bin10,
+      statistic = get_estimate_Binom,
       R = 200
   )
-  pois30.boot <- boot(
-      data = pois30,
-      statistic = get_estimate_NormPois,
+  bin30.boot <- boot(
+      data = bin30,
+      statistic = get_estimate_Binom,
       R = 200
   )
-  pois100.boot <- boot(
-      data = pois100,
-      statistic = get_estimate_NormPois,
+  bin100.boot <- boot(
+      data = bin100,
+      statistic = get_estimate_Binom,
       R = 200
   )
   
@@ -647,14 +648,14 @@ for (i in 1:nsims) {
     if (boot_types[j] == "norm") {subt = 2}
     
     # Calculate lower and upper bounds for boot CI as before
-    lower10 = boot.ci(pois10.boot, type = boot_types[j])[[4]][4-subt]
-    upper10 = boot.ci(pois10.boot, type = boot_types[j])[[4]][5-subt]
+    lower10 = boot.ci(bin10.boot, type = boot_types[j])[[4]][4-subt]
+    upper10 = boot.ci(bin10.boot, type = boot_types[j])[[4]][5-subt]
     
-    lower30 = boot.ci(pois30.boot, type = boot_types[j])[[4]][4-subt]
-    upper30 = boot.ci(pois30.boot, type = boot_types[j])[[4]][5-subt]
+    lower30 = boot.ci(bin30.boot, type = boot_types[j])[[4]][4-subt]
+    upper30 = boot.ci(bin30.boot, type = boot_types[j])[[4]][5-subt]
     
-    lower100 = boot.ci(pois100.boot, type = boot_types[j])[[4]][4-subt]
-    upper100 = boot.ci(pois100.boot, type = boot_types[j])[[4]][5-subt]
+    lower100 = boot.ci(bin100.boot, type = boot_types[j])[[4]][4-subt]
+    upper100 = boot.ci(bin100.boot, type = boot_types[j])[[4]][5-subt]
     
     # Append whether the true parameter is covered to dataframe
     cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
@@ -663,13 +664,13 @@ for (i in 1:nsims) {
   }
   
   # Lastly, we calculate the 'Smooth' Bootstrap Confidence Intervals
-  boot10 <- kernelboot(data=pois10, statistic=get_estimate_NormPois)
+  boot10 <- kernelboot(data=bin10, statistic=get_estimate_NormPois)
   lower10 <- summary(boot10)[3]; upper10 <- summary(boot10)[5]
   
-  boot30 <- kernelboot(data=pois30, statistic=get_estimate_NormPois)
+  boot30 <- kernelboot(data=bin30, statistic=get_estimate_NormPois)
   lower30 <- summary(boot30)[3]; upper30 <- summary(boot30)[5]
   
-  boot100 <- kernelboot(data=pois100, statistic=get_estimate_NormPois)
+  boot100 <- kernelboot(data=bin100, statistic=get_estimate_NormPois)
   lower100 <- summary(boot100)[3]; upper100 <- summary(boot100)[5]
   
   cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
@@ -678,9 +679,9 @@ for (i in 1:nsims) {
   # Set row of data matrix equal to the vector of data we calculated for this 
   # individual simulation
   
-  pois_coverage[i,] <- cov.i
+  bin_coverage[i,] <- cov.i
 }
 
 # Print Coverage rate
-print_coverage(pois_coverage)
+# print_coverage(bin_coverage)
 ```
