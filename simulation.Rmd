@@ -586,6 +586,7 @@ size = 50
 
 # Initialize Data Matrix
 bin_coverage <- matrix(nrow = nsims, ncol = 15)
+bin_width <- matrix(nrow = nsims, ncol = 15)
 
 for (i in 1:nsims) {
   # Generate data of different sample sizes
@@ -595,6 +596,7 @@ for (i in 1:nsims) {
   
   # Initialize row vector to be inserted into data matrix
   cov.i <- c()
+  width.i <- c()
   
   #-----------------------------------------------------------------------------
   # Calculate t-based confidence intervals
@@ -617,7 +619,10 @@ for (i in 1:nsims) {
   cov.i <- c(cov.i, as.numeric((lower10t <= lambda & upper10t >= lambda)),
             (lower30t <= lambda & upper30t >= lambda),
             (lower100t <= lambda & upper100t >= lambda))
-  
+  width.i <- c(width.i, (upper10t - lower10t),
+             (upper30t - lower30t),
+             (upper100t - lower100t))
+    
   #-----------------------------------------------------------------------------
   # Calculate Boot confidence intervals
   #-----------------------------------------------------------------------------
@@ -661,6 +666,9 @@ for (i in 1:nsims) {
     cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
                (lower30 <= lambda & upper30 >= lambda),
                (lower100 <= lambda & upper100 >= lambda))
+    width.i <- c(width.i, (upper10 - lower10),
+              (upper30 - lower30),
+              (upper100 - lower100))
   }
   
   # Lastly, we calculate the 'Smooth' Bootstrap Confidence Intervals
@@ -676,12 +684,16 @@ for (i in 1:nsims) {
   cov.i <- c(cov.i, (lower10 <= lambda & upper10 >= lambda),
                (lower30 <= lambda & upper30 >= lambda),
                (lower100 <= lambda & upper100 >= lambda))
+  width.i <- c(width.i, (upper10 - lower10),
+              (upper30 - lower30),
+              (upper100 - lower100))
   # Set row of data matrix equal to the vector of data we calculated for this 
   # individual simulation
   
   bin_coverage[i,] <- cov.i
+  bin_width[i,] <- width.i
 }
 
 # Print Coverage rate
-# print_coverage(bin_coverage)
+print_coverage(bin_coverage, bin_width)
 ```
