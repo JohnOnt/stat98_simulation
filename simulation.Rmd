@@ -7,7 +7,6 @@ output:
 
 ```{r}
 library(kernelboot)
-# library(distributions3)
 library(boot)
 set.seed(123)
 ```
@@ -53,7 +52,7 @@ print_coverage <- function(data, widths) {
   rownames(tmp.df) <- c('t-based 10', 't-based 30', 't-based 100',
                         'perc boot 10', 'perc boot 30', 'perc boot 100',
                         'basic boot 10', 'basic boot 30', 'basic boot 100',
-                        'norm boot 10', 'norm boot 30', 'norm boot 100',
+                        'bca boot 10', 'bca boot 30', 'bca boot 100',
                         'smooth boot 10', 'smooth boot 30', 'smooth boot 100')
   tmp.df[,1] <- vec
   tmp.df[,2] <- vec2
@@ -77,7 +76,7 @@ get_bounds_df <- function(lowers, uppers) {
   rownames(tmp.df) <- c('t-based 10', 't-based 30', 't-based 100',
                         'perc boot 10', 'perc boot 30', 'perc boot 100',
                         'basic boot 10', 'basic boot 30', 'basic boot 100',
-                        'norm boot 10', 'norm boot 30', 'norm boot 100',
+                        'bca boot 10', 'bca boot 30', 'bca boot 100',
                         'smooth boot 10', 'smooth boot 30', 'smooth boot 100')
   
   tmp.df[,1] <- vec
@@ -751,7 +750,7 @@ for (i in 1:nsims) {
   )
   
   # This whole loop calculates the three boot types in the list below
-  boot_types <- c("perc", "basic", "norm")
+  boot_types <- c("perc", "basic", "bca")
   
   for (j in 1:(length(boot_types))) {
     subt <- 0
