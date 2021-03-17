@@ -225,6 +225,8 @@ for (i in 1:nsims) {
 print_coverage(normies_coverage, normies_width)  
 
 ```
+
+Create graph
 ```{r}
 normies_bounds <- get_bounds_df(normies_lower, normies_upper)
 normies_bounds
@@ -233,15 +235,18 @@ group = c(rep("t-based", 3), rep("Percentile Bootstrap", 3), rep("Standard Boots
 
 ci_data <- data.frame(ci_id = c(rownames(normies_bounds), rownames(normies_bounds)),
                       ci_bounds = c(normies_bounds$lower, normies_bounds$upper),
-                      ci_group = c(group, group))
+                      Method = c(group, group))
                       # capture_mu = c(ci$capture_mu, ci$capture_mu))
 
 
 ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id, 
-                           group = ci_id, color = ci_group)) +
+                           group = ci_id, color = Method)) +
   geom_point(size = 2) +  # add points at the ends, size = 2
   geom_line() +           # connect with lines
-  geom_vline(xintercept = mu, color = "red") # draw vertical line
+  geom_vline(xintercept = mu, color = "red") + # draw vertical line
+  labs(x = "Confidence Interval Bounds",
+       y = "Confidence Interval Methods",
+       title = "Normal Distribution: Average Confidence Intervals ")
 ```
 
 
