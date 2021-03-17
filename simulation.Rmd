@@ -10,6 +10,7 @@ library(kernelboot)
 library(boot)
 library(dplyr)
 set.seed(123)
+nsims <- 500
 ```
 
 ```{r}
@@ -91,7 +92,6 @@ get_bounds_df <- function(lowers, uppers) {
 
 ```{r, warning = F, message=F}
 # Create simulation variables
-nsims = 500
 mu = 0
 
 # Initialize Data Matrix
@@ -255,7 +255,6 @@ ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id,
 
 ```{r, warning = F, message=F}
 # Create simulation variables
-nsims = 500
 p = 0.15
 mean = (1-p)/p
 
@@ -425,7 +424,6 @@ ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id,
 
 ```{r, warning = F, message=F}
 # Create simulation variables
-nsims = 500
 lambda = 4
 mean = 1/lambda
 
@@ -588,7 +586,6 @@ ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id,
 
 ```{r, warning = F, message=F}
 # Create simulation variables
-nsims = 500
 lambda = 4
 
 # Initialize Data Matrix
@@ -747,7 +744,6 @@ ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id,
 
 ```{r, warning = F, message=F}
 # Create simulation variables
-nsims = 500
 p = 0.5
 size = 50
 mean = size*p
