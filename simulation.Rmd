@@ -8,6 +8,7 @@ output:
 ```{r}
 library(kernelboot)
 library(boot)
+library(dplyr)
 set.seed(123)
 ```
 
@@ -397,11 +398,29 @@ for (i in 1:nsims) {
 # Print Coverage rate
 print_coverage(geomies_coverage, geomies_width)
 ```
+
+Create graph
+
 ```{r}
 geomies_bounds <- get_bounds_df(geomies_lower, geomies_upper)
 geomies_bounds
-```
 
+group = c(rep("t-based", 3), rep("Percentile Bootstrap", 3), rep("Standard Bootstrap", 3), rep("BCA", 3), rep("Smooth Bootstrap", 3))
+
+ci_data <- data.frame(ci_id = c(rownames(geomies_bounds), rownames(geomies_bounds)),
+                      ci_bounds = c(geomies_bounds$lower, geomies_bounds$upper),
+                      Method = c(group, group))
+                      # capture_mu = c(ci$capture_mu, ci$capture_mu))
+
+ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id, 
+                           group = ci_id, color = Method)) +
+  geom_point(size = 2) +  # add points at the ends, size = 2
+  geom_line() +           # connect with lines
+  geom_vline(xintercept = mean, color = "red") + # draw vertical line
+  labs(x = "Confidence Interval Bounds",
+       y = "Confidence Interval Methods",
+       title = "Geometric Distribution: Average Confidence Intervals ")
+```
 \section{Exponential Distribution Simulation}
 
 ```{r, warning = F, message=F}
@@ -546,6 +565,22 @@ print_coverage(expos_coverage, expos_width)
 ```{r}
 expos_bounds <- get_bounds_df(expos_lower, expos_upper)
 expos_bounds
+
+group = c(rep("t-based", 3), rep("Percentile Bootstrap", 3), rep("Standard Bootstrap", 3), rep("BCA", 3), rep("Smooth Bootstrap", 3))
+
+ci_data <- data.frame(ci_id = c(rownames(expos_bounds), rownames(expos_bounds)),
+                      ci_bounds = c(expos_bounds$lower, expos_bounds$upper),
+                      Method = c(group, group))
+                      # capture_mu = c(ci$capture_mu, ci$capture_mu))
+
+ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id, 
+                           group = ci_id, color = Method)) +
+  geom_point(size = 2) +  # add points at the ends, size = 2
+  geom_line() +           # connect with lines
+  geom_vline(xintercept = mean, color = "red") + # draw vertical line
+  labs(x = "Confidence Interval Bounds",
+       y = "Confidence Interval Methods",
+       title = "Exponential Distribution: Average Confidence Intervals ")
 ```
 
 
@@ -690,6 +725,22 @@ print_coverage(pois_coverage, pois_width)
 ```{r}
 pois_bounds <- get_bounds_df(pois_lower, pois_upper)
 pois_bounds
+
+group = c(rep("t-based", 3), rep("Percentile Bootstrap", 3), rep("Standard Bootstrap", 3), rep("BCA", 3), rep("Smooth Bootstrap", 3))
+
+ci_data <- data.frame(ci_id = c(rownames(pois_bounds), rownames(pois_bounds)),
+                      ci_bounds = c(pois_bounds$lower, pois_bounds$upper),
+                      Method = c(group, group))
+                      # capture_mu = c(ci$capture_mu, ci$capture_mu))
+
+ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id, 
+                           group = ci_id, color = Method)) +
+  geom_point(size = 2) +  # add points at the ends, size = 2
+  geom_line() +           # connect with lines
+  geom_vline(xintercept = lambda, color = "red") + # draw vertical line
+  labs(x = "Confidence Interval Bounds",
+       y = "Confidence Interval Methods",
+       title = "Poisson Distribution: Average Confidence Intervals ")
 ```
 
 \section{Binomial Distribution Simulation}
@@ -832,4 +883,20 @@ print_coverage(bin_coverage, bin_width)
 ```{r}
 bin_bounds <- get_bounds_df(bin_lower, bin_upper)
 bin_bounds
+
+group = c(rep("t-based", 3), rep("Percentile Bootstrap", 3), rep("Standard Bootstrap", 3), rep("BCA", 3), rep("Smooth Bootstrap", 3))
+
+ci_data <- data.frame(ci_id = c(rownames(bin_bounds), rownames(bin_bounds)),
+                      ci_bounds = c(bin_bounds$lower, bin_bounds$upper),
+                      Method = c(group, group))
+                      # capture_mu = c(ci$capture_mu, ci$capture_mu))
+
+ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id, 
+                           group = ci_id, color = Method)) +
+  geom_point(size = 2) +  # add points at the ends, size = 2
+  geom_line() +           # connect with lines
+  geom_vline(xintercept = mean, color = "red") + # draw vertical line
+  labs(x = "Confidence Interval Bounds",
+       y = "Confidence Interval Methods",
+       title = "Poisson Distribution: Average Confidence Intervals ")
 ```
