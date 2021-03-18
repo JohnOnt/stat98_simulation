@@ -12,6 +12,7 @@ library(dplyr)
 library(ggplot2)
 set.seed(123)
 nsims <- 5000
+nstraps = 1000
 ```
 
 ```{r}
@@ -151,17 +152,17 @@ for (i in 1:nsims) {
   normies10.boot <- boot(
       data = normies10,
       statistic = get_estimate_NormPois,
-      R = 200
+      R = nstraps
   )
   normies30.boot <- boot(
       data = normies30,
       statistic = get_estimate_NormPois,
-      R = 200
+      R = nstraps
   )
   normies100.boot <- boot(
       data = normies100,
       statistic = get_estimate_NormPois,
-      R = 200
+      R = nstraps
   )
   
   # This whole loop calculates the three boot types in the list below
@@ -321,17 +322,17 @@ for (i in 1:nsims) {
   geomies10.boot <- boot(
       data = geomies10,
       statistic = get_estimate_Geom,
-      R = 200
+      R = nstraps
   )
   geomies30.boot <- boot(
       data = geomies30,
       statistic = get_estimate_Geom,
-      R = 200
+      R = nstraps
   )
   geomies100.boot <- boot(
       data = geomies100,
       statistic = get_estimate_Geom,
-      R = 200
+      R = nstraps
   )
   
   # This whole loop calculates the three boot types in the list below
@@ -498,17 +499,17 @@ for (i in 1:nsims) {
   expos10.boot <- boot(
       data = expos10,
       statistic = get_estimate_Expo,
-      R = 200
+      R = nstraps
   )
   expos30.boot <- boot(
       data = expos30,
       statistic = get_estimate_Expo,
-      R = 200
+      R = nstraps
   )
   expos100.boot <- boot(
       data = expos100,
       statistic = get_estimate_Expo,
-      R = 200
+      R = nstraps
   )
   
   # This whole loop calculates the three boot types in the list below
@@ -666,17 +667,17 @@ for (i in 1:nsims) {
   pois10.boot <- boot(
       data = pois10,
       statistic = get_estimate_NormPois,
-      R = 200
+      R = nstraps
   )
   pois30.boot <- boot(
       data = pois30,
       statistic = get_estimate_NormPois,
-      R = 200
+      R = nstraps
   )
   pois100.boot <- boot(
       data = pois100,
       statistic = get_estimate_NormPois,
-      R = 200
+      R = nstraps
   )
   
   # This whole loop calculates the three boot types in the list below
@@ -831,17 +832,17 @@ for (i in 1:nsims) {
   bin10.boot <- boot(
       data = bin10,
       statistic = get_estimate_Binom,
-      R = 200
+      R = nstraps
   )
   bin30.boot <- boot(
       data = bin30,
       statistic = get_estimate_Binom,
-      R = 200
+      R = nstraps
   )
   bin100.boot <- boot(
       data = bin100,
       statistic = get_estimate_Binom,
-      R = 200
+      R = nstraps
   )
   
   # This whole loop calculates the three boot types in the list below
