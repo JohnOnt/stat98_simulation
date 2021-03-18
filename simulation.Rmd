@@ -9,8 +9,9 @@ output:
 library(kernelboot)
 library(boot)
 library(dplyr)
+library(ggplot2)
 set.seed(123)
-nsims <- 500
+nsims <- 5000
 ```
 
 ```{r}
@@ -58,7 +59,7 @@ print_coverage <- function(data, widths) {
                         'smooth boot 10', 'smooth boot 30', 'smooth boot 100')
   tmp.df[,1] <- vec
   tmp.df[,2] <- vec2
-  print(tmp.df)
+  return(tmp.df)
 }
 
 get_bounds_df <- function(lowers, uppers) {
@@ -230,7 +231,7 @@ print_coverage(normies_coverage, normies_width)
 Create graph
 ```{r}
 normies_bounds <- get_bounds_df(normies_lower, normies_upper)
-normies_bounds
+#normies_bounds
 
 group = c(rep("t-based", 3), rep("Percentile Bootstrap", 3), rep("Standard Bootstrap", 3), rep("BCA", 3), rep("Smooth Bootstrap", 3))
 
@@ -240,14 +241,21 @@ ci_data <- data.frame(ci_id = c(rownames(normies_bounds), rownames(normies_bound
                       # capture_mu = c(ci$capture_mu, ci$capture_mu))
 
 
-ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id, 
+labels <- print_coverage(normies_coverage, normies_width)$'coverage probability'
+labels <- c(rep(' ',15), labels)
+ci_data$labels <- labels
+ci_data
+
+ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id,
                            group = ci_id, color = Method)) +
   geom_point(size = 2) +  # add points at the ends, size = 2
   geom_line() +           # connect with lines
   geom_vline(xintercept = mu, color = "red") + # draw vertical line
   labs(x = "Confidence Interval Bounds",
        y = "Confidence Interval Methods",
-       title = "Normal Distribution: Average Confidence Intervals ")
+       title = "Normal Distribution: Average Confidence Intervals ") +
+  geom_text(aes(label=labels), hjust=1, vjust=1.5)
+
 ```
 
 
@@ -403,6 +411,8 @@ Create graph
 ```{r}
 geomies_bounds <- get_bounds_df(geomies_lower, geomies_upper)
 geomies_bounds
+p = 0.15
+mean = (1-p)/p
 
 group = c(rep("t-based", 3), rep("Percentile Bootstrap", 3), rep("Standard Bootstrap", 3), rep("BCA", 3), rep("Smooth Bootstrap", 3))
 
@@ -410,15 +420,21 @@ ci_data <- data.frame(ci_id = c(rownames(geomies_bounds), rownames(geomies_bound
                       ci_bounds = c(geomies_bounds$lower, geomies_bounds$upper),
                       Method = c(group, group))
                       # capture_mu = c(ci$capture_mu, ci$capture_mu))
+# Try to label pt2
+labels <- print_coverage(geomies_coverage, geomies_width)$'coverage probability'
+labels <- c(rep(' ',15), labels)
+ci_data$labels <- labels
 
-ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id, 
+ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id,
                            group = ci_id, color = Method)) +
   geom_point(size = 2) +  # add points at the ends, size = 2
   geom_line() +           # connect with lines
   geom_vline(xintercept = mean, color = "red") + # draw vertical line
   labs(x = "Confidence Interval Bounds",
        y = "Confidence Interval Methods",
-       title = "Geometric Distribution: Average Confidence Intervals ")
+       title = "Geometric Distribution: Average Confidence Intervals ") +
+  geom_text(aes(label=labels), hjust=1, vjust=1.5)
+
 ```
 \section{Exponential Distribution Simulation}
 
@@ -563,6 +579,8 @@ print_coverage(expos_coverage, expos_width)
 ```{r}
 expos_bounds <- get_bounds_df(expos_lower, expos_upper)
 expos_bounds
+lambda = 4
+mean = 1/lambda
 
 group = c(rep("t-based", 3), rep("Percentile Bootstrap", 3), rep("Standard Bootstrap", 3), rep("BCA", 3), rep("Smooth Bootstrap", 3))
 
@@ -571,6 +589,10 @@ ci_data <- data.frame(ci_id = c(rownames(expos_bounds), rownames(expos_bounds)),
                       Method = c(group, group))
                       # capture_mu = c(ci$capture_mu, ci$capture_mu))
 
+labels <- print_coverage(expos_coverage, expos_width)$'coverage probability'
+labels <- c(rep(' ',15), labels)
+ci_data$labels <- labels
+
 ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id, 
                            group = ci_id, color = Method)) +
   geom_point(size = 2) +  # add points at the ends, size = 2
@@ -578,7 +600,8 @@ ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id,
   geom_vline(xintercept = mean, color = "red") + # draw vertical line
   labs(x = "Confidence Interval Bounds",
        y = "Confidence Interval Methods",
-       title = "Exponential Distribution: Average Confidence Intervals ")
+       title = "Exponential Distribution: Average Confidence Intervals ") +
+  geom_text(aes(label=labels), hjust=1, vjust=1.5)
 ```
 
 
@@ -722,6 +745,7 @@ print_coverage(pois_coverage, pois_width)
 ```{r}
 pois_bounds <- get_bounds_df(pois_lower, pois_upper)
 pois_bounds
+lambda = 4
 
 group = c(rep("t-based", 3), rep("Percentile Bootstrap", 3), rep("Standard Bootstrap", 3), rep("BCA", 3), rep("Smooth Bootstrap", 3))
 
@@ -730,6 +754,10 @@ ci_data <- data.frame(ci_id = c(rownames(pois_bounds), rownames(pois_bounds)),
                       Method = c(group, group))
                       # capture_mu = c(ci$capture_mu, ci$capture_mu))
 
+labels <- print_coverage(pois_coverage, pois_width)$'coverage probability'
+labels <- c(rep(' ',15), labels)
+ci_data$labels <- labels
+
 ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id, 
                            group = ci_id, color = Method)) +
   geom_point(size = 2) +  # add points at the ends, size = 2
@@ -737,7 +765,8 @@ ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id,
   geom_vline(xintercept = lambda, color = "red") + # draw vertical line
   labs(x = "Confidence Interval Bounds",
        y = "Confidence Interval Methods",
-       title = "Poisson Distribution: Average Confidence Intervals ")
+       title = "Poisson Distribution: Average Confidence Intervals ") +
+  geom_text(aes(label=labels), hjust=1, vjust=1.5)
 ```
 
 \section{Binomial Distribution Simulation}
@@ -879,6 +908,9 @@ print_coverage(bin_coverage, bin_width)
 ```{r}
 bin_bounds <- get_bounds_df(bin_lower, bin_upper)
 bin_bounds
+p = 0.5
+size = 50
+mean = size*p
 
 group = c(rep("t-based", 3), rep("Percentile Bootstrap", 3), rep("Standard Bootstrap", 3), rep("BCA", 3), rep("Smooth Bootstrap", 3))
 
@@ -887,6 +919,10 @@ ci_data <- data.frame(ci_id = c(rownames(bin_bounds), rownames(bin_bounds)),
                       Method = c(group, group))
                       # capture_mu = c(ci$capture_mu, ci$capture_mu))
 
+labels <- print_coverage(bin_coverage, bin_width)$'coverage probability'
+labels <- c(rep(' ',15), labels)
+ci_data$labels <- labels
+
 ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id, 
                            group = ci_id, color = Method)) +
   geom_point(size = 2) +  # add points at the ends, size = 2
@@ -894,5 +930,6 @@ ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id,
   geom_vline(xintercept = mean, color = "red") + # draw vertical line
   labs(x = "Confidence Interval Bounds",
        y = "Confidence Interval Methods",
-       title = "Poisson Distribution: Average Confidence Intervals ")
+       title = "Binomial Distribution: Average Confidence Intervals ") +
+  geom_text(aes(label=labels), hjust=1, vjust=1.5)
 ```
