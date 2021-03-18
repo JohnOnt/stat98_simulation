@@ -11,8 +11,8 @@ library(boot)
 library(dplyr)
 library(ggplot2)
 set.seed(123)
-nsims <- 5000
-nstraps = 1000
+nsims <- 500
+nstraps = 100
 ```
 
 ```{r}
@@ -934,3 +934,43 @@ ggplot(data = ci_data, aes(x = ci_bounds, y = ci_id,
        title = "Binomial Distribution: Average Confidence Intervals ") +
   geom_text(aes(label=labels), hjust=1, vjust=1.5)
 ```
+
+## Visualizing the generated data
+```{r}
+# 5 x 3 grid of generated data viz
+par(mfrow = c(3, 3))
+
+# Normal distribution (normal, continuous)
+density_norm10 <- density(normies10)
+plot(density_norm10, main = "Normal Distribution, n = 10")
+density_norm30 <- density(normies30)
+plot(density_norm30, main = "Normal Distribution, n = 30")
+density_norm100 <- density(normies100)
+plot(density_norm100, main = "Normal Distribution, n = 100")
+
+# Binomial (normalish, discrete)
+hist(bin10, main = "Binomial Distribution, n = 10")
+hist(bin30, main = "Binomial Distribution, n = 30")
+hist(bin100, main = "Binomial Distribution, n = 100")
+
+# Geometric (skewed, discrete)
+hist(geomies10, main = "Geometric Distribution, n = 10")
+hist(geomies30, main = "Geometric Distribution, n = 30")
+hist(geomies100, main = "Geometric Distribution, n = 100")
+
+par(mfrow = c(2, 3))
+
+# Poisson (skewed, discrete)
+hist(pois10, main = "Poisson Distribution, n = 10")
+hist(pois30, main = "Poisson Distribution, n = 30")
+hist(pois100, main = "Poisson Distribution, n = 100")
+
+# Exponential (skewed, continuous)
+density_expo10 <- density(expos10)
+plot(density_expo10, main = "Exponential Distribution, n = 10")
+density_expo30 <- density(expos30)
+plot(density_expo10, main = "Exponential Distribution, n = 30")
+density_expo100 <- density(expos100)
+plot(density_expo100, main = "Exponential Distribution, n = 100")
+```
+
