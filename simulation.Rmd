@@ -974,3 +974,40 @@ density_expo100 <- density(expos100)
 plot(density_expo100, main = "Exponential Distribution, n = 100")
 ```
 
+## Trying to fix the fucking vizs
+```{r}
+xyz <-
+  ci_data %>%  mutate(name = factor(
+    ci_id,
+    levels = c(
+      'smooth boot 100',
+      'smooth boot 30',
+      'smooth boot 10',
+      'bca boot 100',
+      'bca boot 30',
+      'bca boot 10',
+      'basic boot 100',
+      'basic boot 30',
+      'basic boot 10',
+      'perc boot 100',
+      'perc boot 30',
+      'perc boot 10',
+      't-based 100',
+      't-based 30',
+      't-based 10'
+    )))
+
+xyz$Method <- factor(xyz$Method, levels = c("t-based", "Percentile Bootstrap", "Standard Bootstrap", "BCA", "Smooth Bootstrap"))
+
+ggplot(data = xyz, aes(x = ci_bounds, y = name, 
+                       group = ci_id, color = Method)) +
+  geom_point(size = 2) +  # add points at the ends, size = 2
+  geom_line() +           # connect with lines
+  geom_vline(xintercept = mean, color = "red") + # draw vertical line
+  labs(x = "Confidence Interval Bounds",
+       y = "Confidence Interval Methods",
+       title = "Binomial Distribution: Average Confidence Intervals ") +
+  geom_text(aes(label=labels), hjust=1, vjust=1.5)
+
+```
+
